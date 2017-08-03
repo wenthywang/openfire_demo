@@ -1317,10 +1317,10 @@
         <delete file="${plugin.dev.dest.dir}/${plugin}.jar"/>
         <delete file="${plugin.dest.dir}/${plugin}.jar"/>
         <buildplugin plugin="${plugin}" pluginsrc="${plugin.src.dir}"/>
-
         <!-- Update/create target/openfire directory -->
         <antcall target="openfireHome"/>
     </target>
+	
 
     <!-- buildplugin (MACRO) =================================================================== -->
     <macrodef name="buildplugin">

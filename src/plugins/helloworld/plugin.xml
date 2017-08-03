@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<plugin>
+
+    <!-- Main plugin class -->
+    <class>com.hui.HellowWorldPlugin</class>
+    
+    <!-- Plugin meta-data -->
+    <name>hello world</name>
+    <description>test</description>
+    <author>wenthywang</author>
+    <version>1.0.0</version>
+    <date>03/08/2017</date>
+    <minServerVersion>4.1.5</minServerVersion>
+     <url>http://localhost:9090/openfire/plugins.jsp</url>  
+    <!-- UI extension -->
+    <adminconsole>		
+    </adminconsole>
+    
+</plugin>
