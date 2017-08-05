@@ -1310,7 +1310,10 @@
         </for>
     </target>
 
+	<!--build 插件  -->
     <target name="plugin" description="build one plugin">
+    	<!--修改value值 为插件名称即可生成jar  -->
+    	<property name="plugin" value="helloworld"/>
         <mkdir dir="${plugin.dest.dir}"/>
 
         <delete dir="${plugin.dev.dest.dir}/${plugin}"/>

@@ -21,6 +21,7 @@
 package org.jivesoftware.openfire.plugin;
 
 import java.io.File;
+
 import java.util.regex.PatternSyntaxException;
 
 import org.jivesoftware.openfire.MessageRouter;
