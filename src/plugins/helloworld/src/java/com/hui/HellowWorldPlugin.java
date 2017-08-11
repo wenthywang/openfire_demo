@@ -1,15 +1,20 @@
 package com.hui;
 
 import java.io.File;
+import java.util.Collection;
+import java.util.Date;
 
-
+import org.apache.commons.lang.time.DateFormatUtils;
 import org.jivesoftware.openfire.XMPPServer;
 import org.jivesoftware.openfire.container.Plugin;
 import org.jivesoftware.openfire.container.PluginManager;
+import org.jivesoftware.openfire.event.SessionEventDispatcher;
+import org.jivesoftware.openfire.event.SessionEventListener;
 import org.jivesoftware.openfire.interceptor.InterceptorManager;
 import org.jivesoftware.openfire.interceptor.PacketInterceptor;
 import org.jivesoftware.openfire.interceptor.PacketRejectedException;
 import org.jivesoftware.openfire.session.Session;
+import org.jivesoftware.smack.RosterListener;
 import org.xmpp.packet.Message;
 import org.xmpp.packet.Packet;
 import org.xmpp.packet.Presence;
@@ -25,11 +30,11 @@ import org.xmpp.packet.Presence;
  *    修改后版本:     修改人：  修改日期:     修改内容: 
  * </pre>
  */
-public class HellowWorldPlugin implements Plugin,PacketInterceptor {
+public class HellowWorldPlugin implements Plugin,PacketInterceptor ,SessionEventListener,RosterListener{
 	
 	 private XMPPServer server;  
 	    //B: 消息拦截器
-	    private InterceptorManager interceptorManager;
+	 private InterceptorManager interceptorManager;
 	 
 	@Override
 	public void initializePlugin(PluginManager manager, File pluginDirectory) {
@@ -39,6 +44,7 @@ public class HellowWorldPlugin implements Plugin,PacketInterceptor {
 	        // 将当前插件加入到消息拦截管理器（interceptorManager ）中，当消息到来或者发送出去的时候，会触发本插件的interceptPacket方法。
 	        interceptorManager = InterceptorManager.getInstance();
 	        interceptorManager.addInterceptor(this);
+	        SessionEventDispatcher.addListener(this);
 		
 	}
 	@Override
@@ -62,10 +68,13 @@ public class HellowWorldPlugin implements Plugin,PacketInterceptor {
                 Message msg = (Message)packet;
 // 取得message中的body内容，就是消息正文
                 String body = msg.getBody();
+                System.out.println(msg.toXML());
               if(body!=null){
             	  System.out.println( "from->"+packet.getFrom());
                   System.out.println( "to->"+ packet.getTo());
                   System.out.println("message->"+body);
+              }else{
+            	  return;
               }
                
                 // 如果内容中包含fuck，则拒绝处理消息
@@ -80,16 +89,108 @@ public class HellowWorldPlugin implements Plugin,PacketInterceptor {
  
             }
             
-            //处理用户上线下线
             if (packet instanceof Presence) {
             	Presence presence = (Presence)packet;
-            	if(presence.isAvailable()){
-            		System.out.println( presence.getFrom().toBareJID()+"->online");
-            	}else{
-            		System.out.println( presence.getFrom().toBareJID()+"->offline");
-            	}
+            System.out.println(presence.toXML());
+     
+           //添加好友的packet
+           if( presence.getType()!=null&& presence.getType().name().equals(Presence.Type.subscribe.name())){
+        	   String fromJid=presence.getFrom().toBareJID();
+        	   String toJid=presence.getTo().toBareJID();
+        	   System.out.println( fromJid+"请求添加"+toJid+"为好友！");
+           }
+           
+           if( presence.getType()!=null&& presence.getType().name().equals(Presence.Type.unsubscribe.name())){
+        	   String fromJid=presence.getFrom().toBareJID();
+        	   String toJid=presence.getTo().toBareJID();
+        	   System.out.println( fromJid+"请求添加"+toJid+"为好友！");
+           }
+           
+           
+           
+           
             }
-        }
+	}}
+	
+	
+	/**
+	 * session event listener
+	 * 会话监听器
+	 */
+	
+	@Override
+	public void sessionCreated(Session session) {
+		
+			System.out.println("账号->"+session.getAddress().asBareJID());
+			String loginTime=DateFormatUtils.format(session.getCreationDate(), "yyyy-MM-dd HH:mm:ss");
+			System.out.println("登陆时间->"+loginTime);
+		
+	}
+	
+	@Override
+	public void sessionDestroyed(Session session) {
+		System.out.println("账号->"+session.getAddress().asBareJID());
+		String loginTime=DateFormatUtils.format(new Date(), "yyyy-MM-dd HH:mm:ss");
+		System.out.println("登出时间->"+loginTime);
+	}
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.event.SessionEventListener#anonymousSessionCreated(org.jivesoftware.openfire.session.Session)
+	 */
+	@Override
+	public void anonymousSessionCreated(Session session) {
+		// TODO Auto-generated method stub
+		
+	}
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.event.SessionEventListener#anonymousSessionDestroyed(org.jivesoftware.openfire.session.Session)
+	 */
+	@Override
+	public void anonymousSessionDestroyed(Session session) {
+		// TODO Auto-generated method stub
+		
+	}
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.openfire.event.SessionEventListener#resourceBound(org.jivesoftware.openfire.session.Session)
+	 */
+	@Override
+	public void resourceBound(Session session) {
+		// TODO Auto-generated method stub
+		
+	}
+	
+	
+	
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.smack.RosterListener#entriesAdded(java.util.Collection)
+	 */
+	@Override
+	public void entriesAdded(Collection<String> arg0) {
+	  System.out.println("entriesAdded");
+		
+	}
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.smack.RosterListener#entriesDeleted(java.util.Collection)
+	 */
+	@Override
+	public void entriesDeleted(Collection<String> arg0) {
+		// TODO Auto-generated method stub
+		  System.out.println("entriesDeleted");
+		
+	}
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.smack.RosterListener#entriesUpdated(java.util.Collection)
+	 */
+	@Override
+	public void entriesUpdated(Collection<String> arg0) {
+		  System.out.println("entriesUpdated");
+		
+	}
+	/* (non-Javadoc)
+	 * @see org.jivesoftware.smack.RosterListener#presenceChanged(org.jivesoftware.smack.packet.Presence)
+	 */
+	@Override
+	public void presenceChanged(org.jivesoftware.smack.packet.Presence arg0) {
+		  System.out.println("presenceChanged");
 		
 	}
 
